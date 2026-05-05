@@ -1,65 +1,50 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6] flex flex-col items-center justify-center px-6 py-12">
+      {/* Logo / Brand mark */}
+      <div className="mb-8 flex items-center gap-3">
+        <div className="h-12 w-12 rounded-xl bg-[#E8550A] flex items-center justify-center text-2xl font-bold text-[#0a0a0f]">
+          N
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <span className="font-mono text-sm tracking-widest text-[#a8a297] uppercase">
+          NEET • Lab
+        </span>
+      </div>
+
+      {/* Headline */}
+      <h1 className="text-5xl md:text-7xl font-bold text-center max-w-3xl leading-tight tracking-tight">
+        Chemistry you can{" "}
+        <span className="text-[#E8550A]">touch</span>,{" "}
+        <span className="text-[#4ECDC4]">rotate</span>, and{" "}
+        <span className="text-[#FFD93D]">understand</span>.
+      </h1>
+
+      {/* Subhead */}
+      <p className="mt-6 text-lg md:text-xl text-[#a8a297] text-center max-w-2xl leading-relaxed">
+        India&apos;s first interactive 3D chemistry platform built for NEET aspirants. Stop memorizing. Start exploring.
+      </p>
+
+      {/* CTA */}
+      <div className="mt-10 flex flex-col sm:flex-row gap-4">
+        <button className="px-8 py-3.5 rounded-full bg-[#E8550A] text-[#0a0a0f] font-semibold hover:bg-[#ff6b1f] transition-colors">
+          Explore Labs (Free)
+        </button>
+        <button className="px-8 py-3.5 rounded-full border border-[#2a2a35] text-[#f5efe6] font-medium hover:border-[#E8550A] hover:text-[#E8550A] transition-colors">
+          See How It Works
+        </button>
+      </div>
+
+      {/* Status badge */}
+      <div className="mt-16 px-4 py-2 rounded-full border border-[#2a2a35] flex items-center gap-2 text-sm text-[#a8a297]">
+        <span className="h-2 w-2 rounded-full bg-[#4ECDC4] animate-pulse"></span>
+        <span>Building in public — first 10 labs launching in 12 weeks</span>
+      </div>
+
+      {/* Footer */}
+      <footer className="mt-24 text-xs text-[#5a5750] text-center">
+        Built by Animesh Singh · Allen Career Institute, Lucknow ·{" "}
+        <span className="text-[#a8a297]">@neetyaari</span>
+      </footer>
+    </main>
   );
 }
