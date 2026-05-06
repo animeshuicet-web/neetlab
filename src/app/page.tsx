@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import MethaneCanvas from "@/components/molecules/MethaneCanvas";
+import Link from "next/link";
 
 export default async function Home() {
   // Keep Supabase imported so we know connection still works
@@ -40,12 +41,18 @@ export default async function Home() {
 
       {/* CTA */}
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
-        <button className="px-8 py-3.5 rounded-full bg-[#E8550A] text-[#0a0a0f] font-semibold hover:bg-[#ff6b1f] transition-colors">
+        <Link
+          href="/labs"
+          className="px-8 py-3.5 rounded-full bg-[#E8550A] text-[#0a0a0f] font-semibold hover:bg-[#ff6b1f] transition-colors text-center"
+        >
           Explore Labs (Free)
-        </button>
-        <button className="px-8 py-3.5 rounded-full border border-[#2a2a35] text-[#f5efe6] font-medium hover:border-[#E8550A] hover:text-[#E8550A] transition-colors">
-          See How It Works
-        </button>
+        </Link>
+        <Link
+          href="/labs/methane"
+          className="px-8 py-3.5 rounded-full border border-[#2a2a35] text-[#f5efe6] font-medium hover:border-[#E8550A] hover:text-[#E8550A] transition-colors text-center"
+        >
+          Try First Lab
+        </Link>
       </div>
 
       {/* Status badge */}
