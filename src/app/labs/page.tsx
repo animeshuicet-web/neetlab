@@ -19,13 +19,11 @@ export default function LabsCatalog() {
       {/* Top nav */}
       <nav className="px-6 py-5 border-b border-[#1a1a25]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="h-8 w-8 rounded-lg bg-[#E8550A] flex items-center justify-center text-base font-bold text-[#0a0a0f] group-hover:scale-110 transition-transform">
-              N
-            </div>
-            <span className="font-mono text-xs tracking-widest text-[#a8a297] uppercase">
-              NEET • Lab
+          <Link href="/" className="flex items-baseline gap-2 group">
+            <span className="text-2xl font-black tracking-tight text-[#f5efe6] group-hover:text-[#f5efe6]">
+              NEET<span className="text-[#E8550A]">lab</span>
             </span>
+            <span className="text-base text-[#E8550A] group-hover:scale-125 transition-transform">⬡</span>
           </Link>
           <Link
             href="/"

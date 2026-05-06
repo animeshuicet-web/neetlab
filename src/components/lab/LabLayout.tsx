@@ -16,11 +16,11 @@ export default function LabLayout({ lab, children }: LabLayoutProps) {
       <nav className="px-6 py-5 border-b border-[#1a1a25]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="h-8 w-8 rounded-lg bg-[#E8550A] flex items-center justify-center text-base font-bold text-[#0a0a0f] group-hover:scale-110 transition-transform">
+            <div className="h-10 w-10 rounded-xl bg-[#E8550A] flex items-center justify-center text-xl font-black text-[#0a0a0f] group-hover:scale-110 transition-transform shadow-md shadow-[#E8550A]/20">
               N
             </div>
-            <span className="font-mono text-xs tracking-widest text-[#a8a297] uppercase">
-              NEET • Lab
+            <span className="text-xl font-black tracking-tight text-[#f5efe6]">
+              NEET<span className="text-[#E8550A]">lab</span>
             </span>
           </Link>
           <Link

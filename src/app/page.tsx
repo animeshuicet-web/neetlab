@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import MethaneCanvas from "@/components/molecules/MethaneCanvas";
+import BenzeneCanvas from "@/components/molecules/BenzeneCanvas";
 import Link from "next/link";
 
 export default async function Home() {
@@ -8,13 +8,16 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6] flex flex-col items-center px-6 py-12">
-      {/* Logo / Brand mark */}
-      <div className="mb-8 flex items-center gap-3">
-        <div className="h-12 w-12 rounded-xl bg-[#E8550A] flex items-center justify-center text-2xl font-bold text-[#0a0a0f]">
-          N
+     {/* Logo / Brand mark — wordmark with hexagon accent */}
+      <div className="mb-10 flex flex-col items-center gap-2">
+        <div className="flex items-baseline gap-3">
+          <span className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-[#f5efe6]">
+            NEET<span className="text-[#E8550A]">lab</span>
+          </span>
+          <span className="text-2xl md:text-3xl text-[#E8550A] -translate-y-1">⬡</span>
         </div>
-        <span className="font-mono text-sm tracking-widest text-[#a8a297] uppercase">
-          NEET • Lab
+        <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.3em] text-[#5a5750]">
+          interactive · 3D · chemistry
         </span>
       </div>
 
@@ -32,10 +35,10 @@ export default async function Home() {
       </p>
 
       {/* === The 3D molecule === */}
-      <div className="mt-10 w-full max-w-md aspect-square">
-        <MethaneCanvas />
+      <div className="mt-10 w-full max-w-lg aspect-square">
+        <BenzeneCanvas />
         <p className="text-center text-xs text-[#a8a297] mt-2 font-mono">
-          methane (CH₄) · drag to rotate
+          benzene (C₆H₆) · drag to rotate · toggle view above
         </p>
       </div>
 
