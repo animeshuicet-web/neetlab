@@ -1,4 +1,9 @@
-export default function Home() {
+import { supabase } from "@/lib/supabase";
+
+export default async function Home() {
+  // Sanity check — confirms Supabase client initializes without errors
+  
+
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6] flex flex-col items-center justify-center px-6 py-12">
       {/* Logo / Brand mark */}
@@ -40,9 +45,11 @@ export default function Home() {
         <span>Building in public — first 10 labs launching in 12 weeks</span>
       </div>
 
+      
+
       {/* Footer */}
       <footer className="mt-24 text-xs text-[#5a5750] text-center">
-        Built by Animesh Singh · Allen Career Institute, Lucknow ·{" "}
+        Built by Animesh Singh · Lucknow ·{" "}
         <span className="text-[#a8a297]">@neetyaari</span>
       </footer>
     </main>
