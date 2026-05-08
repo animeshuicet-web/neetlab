@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SiteNav from "@/components/nav/SiteNav";
 import {
   getPublishedLabs,
   DOMAIN_META,
@@ -17,22 +18,7 @@ export default function LabsCatalog() {
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6]">
       {/* Top nav */}
-      <nav className="px-6 py-5 border-b border-[#1a1a25]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-baseline gap-2 group">
-            <span className="text-2xl font-black tracking-tight text-[#f5efe6] group-hover:text-[#f5efe6]">
-              NEET<span className="text-[#E8550A]">lab</span>
-            </span>
-            <span className="text-base text-[#E8550A] group-hover:scale-125 transition-transform">⬡</span>
-          </Link>
-          <Link
-            href="/"
-            className="text-sm text-[#a8a297] hover:text-[#E8550A] transition-colors"
-          >
-            ← Home
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* Page header */}
       <header className="px-6 pt-16 pb-12">
@@ -118,7 +104,7 @@ export default function LabsCatalog() {
 
       {/* Footer */}
       <footer className="px-6 py-8 border-t border-[#1a1a25] text-center text-xs text-[#5a5750]">
-        Built by Animesh Singh · Allen Career Institute, Lucknow ·{" "}
+        Built by Animesh Singh ·{" "}
         <span className="text-[#a8a297]">@neetyaari</span>
       </footer>
     </main>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Lab, DOMAIN_META, DIFFICULTY_META } from "@/data/labs";
-
+import SiteNav from "@/components/nav/SiteNav";
 interface LabLayoutProps {
   lab: Lab;
   children: React.ReactNode;
@@ -13,25 +13,7 @@ export default function LabLayout({ lab, children }: LabLayoutProps) {
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6]">
       {/* Top nav */}
-      <nav className="px-6 py-5 border-b border-[#1a1a25]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl bg-[#E8550A] flex items-center justify-center text-xl font-black text-[#0a0a0f] group-hover:scale-110 transition-transform shadow-md shadow-[#E8550A]/20">
-              N
-            </div>
-            <span className="text-xl font-black tracking-tight text-[#f5efe6]">
-              NEET<span className="text-[#E8550A]">lab</span>
-            </span>
-          </Link>
-          <Link
-            href="/labs"
-            className="text-sm text-[#a8a297] hover:text-[#E8550A] transition-colors"
-          >
-            ← All labs
-          </Link>
-        </div>
-      </nav>
-
+      <SiteNav />
       {/* Lab header */}
       <header className="px-6 pt-10 pb-6 border-b border-[#1a1a25]">
         <div className="max-w-6xl mx-auto">
@@ -82,8 +64,8 @@ export default function LabLayout({ lab, children }: LabLayoutProps) {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-[#1a1a25] text-center text-xs text-[#5a5750]">
-        Built by Animesh Singh · Allen Career Institute, Lucknow ·{" "}
+      <footer className="px-6 py-8 bowrder-t border-[#1a1a25] text-center text-xs text-[#5a5750]">
+        Built by Animesh Singh ·{" "}
         <span className="text-[#a8a297]">@neetyaari</span>
       </footer>
     </main>
