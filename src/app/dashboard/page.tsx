@@ -1,44 +1,76 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import SiteNav from "@/components/nav/SiteNav";
+import DashboardClient from "@/components/dashboard/DashboardClient";
+import { labs as allLabs } from "@/data/labs";
+
+export const metadata = {
+  title: "Dashboard · NEETlab",
+  description: "Your saved labs, profile, and progress on NEETlab.",
+};
 
 export default async function DashboardPage() {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // If not logged in, send to login
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/dashboard");
   }
 
-  return (
-    <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6]">
-      <SiteNav />
-      <div className="flex flex-col items-center justify-center px-6 py-20">
-        <div className="max-w-md w-full text-center">
-          <div className="text-5xl mb-4">🎉</div>
-          <h1 className="text-3xl font-black tracking-tight mb-3">
-            Welcome to NEETlab
-          </h1>
-          <p className="text-[#a8a297] mb-2">
-            You&apos;re logged in as{" "}
-            <span className="text-[#E8550A] font-medium">{user.email}</span>
-          </p>
-          <p className="text-xs text-[#5a5750] mb-8">
-            Full dashboard coming next — for now, browse the labs.
-          </p>
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, name, email, target_year, current_class, role, created_at")
+    .eq("id", user.id)
+    .single();
 
-          <Link
-            href="/labs"
-            className="inline-block px-8 py-3 rounded-full bg-[#E8550A] text-[#0a0a0f] font-semibold hover:bg-[#ff6b1f] transition-colors"
-          >
-            Explore Labs
-          </Link>
-        </div>
-      </div>
-    </main>
+  const { data: savedRows } = await supabase
+    .from("saved_labs")
+    .select("lab_slug, saved_at")
+    .eq("user_id", user.id)
+    .order("saved_at", { ascending: false });
+
+  const savedSlugs = (savedRows ?? []).map((r) => r.lab_slug);
+
+  const savedLabs = savedSlugs
+    .map((slug) => {
+      const lab = allLabs.find((l) => l.slug === slug);
+      if (!lab) return null;
+      const savedAt = savedRows?.find((r) => r.lab_slug === slug)?.saved_at;
+      return { ...lab, savedAt };
+    })
+    .filter(Boolean) as ((typeof allLabs)[number] & { savedAt?: string })[];
+
+  const createdAt = profile?.created_at
+    ? new Date(profile.created_at)
+    : new Date();
+  const daysOnPlatform = Math.max(
+    1,
+    Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
+  );
+
+  const safeProfile = profile ?? {
+    id: user.id,
+    name: "",
+    email: user.email ?? "",
+    target_year: null,
+    current_class: null,
+    role: "student",
+    created_at: new Date().toISOString(),
+  };
+
+  const targetYear = profile?.target_year ?? null;
+
+  return (
+    <DashboardClient
+      profile={safeProfile}
+      savedLabs={savedLabs}
+      stats={{
+        savedCount: savedLabs.length,
+        daysOnPlatform: daysOnPlatform,
+        targetYear: targetYear,
+      }}
+    />
   );
 }
