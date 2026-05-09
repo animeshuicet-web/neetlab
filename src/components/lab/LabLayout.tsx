@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Lab, DOMAIN_META, DIFFICULTY_META } from "@/data/labs";
 import SiteNav from "@/components/nav/SiteNav";
 import SaveLabButton from "@/components/lab/SaveLabButton";
@@ -19,16 +19,20 @@ export default async function LabLayout({ lab, children }: LabLayoutProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let initialSaved = false;
-  if (user) {
-    const { data: existing } = await supabase
-      .from("saved_labs")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("lab_slug", lab.slug)
-      .maybeSingle();
-    initialSaved = !!existing;
+  // Lab gating — must be logged in to view individual lab pages.
+  // Catalog at /labs stays public for SEO; this only gates /labs/[slug].
+  if (!user) {
+    redirect(`/login?next=/labs/${lab.slug}`);
   }
+
+  // User is guaranteed here — fetch saved state
+  const { data: existing } = await supabase
+    .from("saved_labs")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("lab_slug", lab.slug)
+    .maybeSingle();
+  const initialSaved = !!existing;
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6]">
@@ -77,11 +81,11 @@ export default async function LabLayout({ lab, children }: LabLayoutProps) {
             {lab.description}
           </p>
 
-          {/* Save lab button — visible to all, behavior depends on login */}
+          {/* Save lab button — user is always logged in here (gated above) */}
           <SaveLabButton
             slug={lab.slug}
             initialSaved={initialSaved}
-            isLoggedIn={!!user}
+            isLoggedIn={true}
           />
         </div>
       </header>
