@@ -2,6 +2,19 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  // Skip static assets and Next internals at runtime — belt and suspenders
+  if (
+    path.startsWith("/_next/") ||
+    path.startsWith("/favicon") ||
+    /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|map|woff|woff2|ttf)$/i.test(path)
+  ) {
+    return NextResponse.next({ request });
+  }
+
+ 
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -31,8 +44,6 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+export const proxyConfig = {
+  matcher: "/:path*",
 };
