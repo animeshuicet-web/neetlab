@@ -1,19 +1,40 @@
 import Link from "next/link";
 import { Lab, DOMAIN_META, DIFFICULTY_META } from "@/data/labs";
 import SiteNav from "@/components/nav/SiteNav";
+import SaveLabButton from "@/components/lab/SaveLabButton";
+import { createClient } from "@/lib/supabase-server";
+
 interface LabLayoutProps {
   lab: Lab;
   children: React.ReactNode;
 }
 
-export default function LabLayout({ lab, children }: LabLayoutProps) {
+export default async function LabLayout({ lab, children }: LabLayoutProps) {
   const domainMeta = DOMAIN_META[lab.domain];
   const diffMeta = DIFFICULTY_META[lab.difficulty];
+
+  // Server-fetch auth + saved state so the button knows what to render
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let initialSaved = false;
+  if (user) {
+    const { data: existing } = await supabase
+      .from("saved_labs")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("lab_slug", lab.slug)
+      .maybeSingle();
+    initialSaved = !!existing;
+  }
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-[#f5efe6]">
       {/* Top nav */}
       <SiteNav />
+
       {/* Lab header */}
       <header className="px-6 pt-10 pb-6 border-b border-[#1a1a25]">
         <div className="max-w-6xl mx-auto">
@@ -52,9 +73,16 @@ export default function LabLayout({ lab, children }: LabLayoutProps) {
           <p className="text-sm md:text-base text-[#a8a297] mb-2">
             {lab.chapter}
           </p>
-          <p className="text-base md:text-lg text-[#a8a297] max-w-3xl leading-relaxed">
+          <p className="text-base md:text-lg text-[#a8a297] max-w-3xl leading-relaxed mb-5">
             {lab.description}
           </p>
+
+          {/* Save lab button — visible to all, behavior depends on login */}
+          <SaveLabButton
+            slug={lab.slug}
+            initialSaved={initialSaved}
+            isLoggedIn={!!user}
+          />
         </div>
       </header>
 
@@ -64,7 +92,7 @@ export default function LabLayout({ lab, children }: LabLayoutProps) {
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 bowrder-t border-[#1a1a25] text-center text-xs text-[#5a5750]">
+      <footer className="px-6 py-8 border-t border-[#1a1a25] text-center text-xs text-[#5a5750]">
         Built by Animesh Singh ·{" "}
         <span className="text-[#a8a297]">@neetyaari</span>
       </footer>
