@@ -1,56 +1,58 @@
 import LabLayout from "@/components/lab/LabLayout";
 import AtomicOrbitalsCanvas from "@/components/molecules/AtomicOrbitalsCanvas";
+import { getLabBySlug } from "@/data/labs";
+import { notFound } from "next/navigation";
 
-const lab = {
-  slug: "atomic-orbitals",
-  title: "Atomic Orbitals Explorer",
-  shortTitle: "Atomic Orbitals",
-  chapter: "Structure of Atom",
-  domain: "physical" as const,
-  difficulty: "easy" as const,
-  weightage: "1-2 questions",
-  description:
-    "Explore 3D shapes of s, p and d orbitals interactively.",
-  tags: ["orbitals", "3D", "visualization", "NEET"],
-  is3D: true,
-  published: true,
-};
+export default async function AtomicOrbitalsPage() {
+  const lab = getLabBySlug("atomic-orbitals");
+  if (!lab) notFound();
 
-export default function AtomicOrbitalsPage() {
   return (
     <LabLayout lab={lab}>
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        
-        {/* LEFT: 3D CANVAS PLACEHOLDER */}
-        <div className="aspect-square overflow-hidden rounded-3xl border border-[#1a1a25] bg-[#0f0f17]">
-  <AtomicOrbitalsCanvas />
-</div>
+      <div className="space-y-6">
+        <AtomicOrbitalsCanvas />
 
-        {/* RIGHT: NOTES PANEL */}
-        <div className="rounded-3xl border border-[#1a1a25] bg-[#0f0f17] p-6 space-y-6">
-          
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-[#5a5750]">
-              What you're seeing
-            </p>
-
-            <p className="text-sm leading-relaxed text-[#f5efe6]">
-              Atomic orbitals are regions in space where electrons are most likely to be found.
-            </p>
+        <div className="bg-[#0f0f17] border border-[#1a1a25] rounded-lg p-5">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-[#a8a297] mb-3">
+            How to use this lab
           </div>
+          <ul className="text-[#f5efe6] text-sm leading-relaxed space-y-2">
+            <li>
+              <span className="text-[#E8550A] font-mono">Explorer</span> — pick any
+              orbital from 1s to 3d. See its shape and node count.
+            </li>
+            <li>
+              <span className="text-[#E8550A] font-mono">Subshell</span> — see all p
+              or all d orbitals together. Why 3 p's = 6 electrons, 5 d's = 10.
+            </li>
+            <li>
+              <span className="text-[#5a5750] font-mono">Nodes (soon)</span> —
+              radial and angular node visualization is coming in v2.
+            </li>
+          </ul>
+        </div>
 
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.3em] text-[#5a5750]">
-              Key NEET facts
-            </p>
-
-            <ul className="space-y-2 text-sm text-[#a8a297]">
-              <li>• s orbitals are spherical</li>
-              <li>• p orbitals are dumbbell-shaped</li>
-              <li>• d orbitals are cloverleaf-shaped</li>
-            </ul>
+        <div className="bg-[#0f0f17] border border-[#1a1a25] rounded-lg p-5">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-[#a8a297] mb-3">
+            NEET-style question
           </div>
-
+          <div className="text-[#f5efe6] text-sm leading-relaxed mb-3">
+            The total number of nodes in a 3p orbital is:
+          </div>
+          <div className="text-sm font-mono text-[#a8a297] space-y-1">
+            <div>(A) 1</div>
+            <div>(B) 2</div>
+            <div>(C) 3</div>
+            <div>(D) 0</div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-[#1a1a25]">
+            <span className="text-[#4ECDC4] text-xs font-mono">
+              ✓ Answer: (B) 2
+            </span>
+            <span className="text-[#a8a297] text-xs ml-2">
+              Total nodes = n − 1 = 3 − 1 = 2 (1 radial + 1 angular)
+            </span>
+          </div>
         </div>
       </div>
     </LabLayout>
