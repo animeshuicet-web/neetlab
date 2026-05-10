@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>States of Matter — NEETlab</title>
+  <link rel="stylesheet" href="/labs-html/_theme.css" />
+  <style>
+    /* Lab-specific styles. All colors via _theme.css variables. */
+
+    body {
+      padding: 20px 14px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.8rem;
+    }
+
+    h1 {
+      font-size: clamp(1.7rem, 5vw, 2.3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+      color: var(--nl-text);
+    }
+
+    .subtitle {
+      color: var(--nl-text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .simulation-card {
+      background: var(--nl-card);
+      border-radius: 16px;
+      border: 1px solid var(--nl-border);
+      padding: 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
+
+    .energy-label {
+      font-family: var(--nl-font-mono);
+      font-size: 0.7rem;
+      color: var(--nl-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      min-width: 70px;
+    }
+
+    .slider-container {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    /* Temperature gradient kept on the slider — it's pedagogically meaningful
+       (cold = blue, hot = red lets students see temperature visually) */
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg,
+        #4fc3f7 0%,
+        #64b5f6 25%,
+        var(--nl-warning) 60%,
+        #ef5350 85%,
+        #ff6090 100%);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      background: var(--nl-text);
+      border: 3px solid var(--nl-accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(232, 85, 10, 0.45);
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      background: var(--nl-text);
+      border: 3px solid var(--nl-accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(232, 85, 10, 0.45);
+    }
+
+    .temp-display {
+      font-family: var(--nl-font-mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--nl-warning);
+      min-width: 90px;
+      text-align: right;
+    }
+
+    .state-buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .state-btn {
+      padding: 0.6rem 0.4rem;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--nl-border);
+      border-radius: 8px;
+      color: var(--nl-text-secondary);
+      font-family: var(--nl-font-body);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .state-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--nl-text);
+    }
+
+    .state-btn.active {
+      background: rgba(232, 85, 10, 0.12);
+      border-color: var(--nl-accent);
+      color: var(--nl-accent);
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--nl-bg);
+      border-radius: 12px;
+      border: 1px solid var(--nl-border);
+      overflow: hidden;
+      margin-bottom: 1.2rem;
+    }
+
+    #particle-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .state-label-overlay {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-family: var(--nl-font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 4px 10px;
+      background: rgba(10, 10, 15, 0.7);
+      border: 1px solid var(--nl-border);
+      border-radius: 5px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--nl-border);
+      border-radius: 10px;
+      padding: 0.8rem;
+    }
+
+    .info-box h3 {
+      font-family: var(--nl-font-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--nl-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 0.4rem;
+    }
+
+    .info-box p {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--nl-text);
+    }
+
+    .meter {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+
+    /* ── Energy continuum strip ── */
+    .energy-continuum {
+      background: var(--nl-card);
+      border-radius: 16px;
+      border: 1px solid var(--nl-border);
+      padding: 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .continuum-title {
+      font-family: var(--nl-font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--nl-text-secondary);
+      margin-bottom: 0.7rem;
+    }
+
+    .continuum-bar {
+      display: flex;
+      gap: 4px;
+      height: 60px;
+    }
+
+    .continuum-segment {
+      flex: 1;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--nl-font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--nl-text);
+      transition: transform 0.2s, filter 0.2s;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .continuum-segment:hover {
+      transform: scaleY(1.05);
+      filter: brightness(1.15);
+    }
+
+    .continuum-segment span {
+      font-family: var(--nl-font-mono);
+      font-size: 0.6rem;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    .seg-bec    { background: linear-gradient(135deg, #1a237e, #4fc3f7); }
+    .seg-solid  { background: linear-gradient(135deg, #00695c, #4db6ac); }
+    .seg-liquid { background: linear-gradient(135deg, #1565c0, #64b5f6); }
+    .seg-gas    { background: linear-gradient(135deg, #b06b00, var(--nl-accent)); }
+    .seg-plasma { background: linear-gradient(135deg, #b71c1c, #ff6090); }
+
+    /* ── Key insight ── */
+    .key-insight {
+      background: rgba(78, 205, 196, 0.06);
+      border: 1px solid rgba(78, 205, 196, 0.18);
+      border-radius: 12px;
+      padding: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .key-insight h3 {
+      font-family: var(--nl-font-mono);
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 0.6rem;
+      color: var(--nl-cool);
+    }
+
+    .key-insight p {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--nl-text);
+    }
+
+    /* ── Credits ── */
+    .credits {
+      text-align: center;
+      padding: 0.8rem 0 0.4rem;
+      font-family: var(--nl-font-mono);
+      font-size: 0.62rem;
+      color: var(--nl-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>States of Matter</h1>
+      <p class="subtitle">From Bose-Einstein Condensate to Plasma — drag the slider</p>
+    </header>
+
+    <div class="simulation-card">
+      <div class="controls">
+        <span class="energy-label">Energy</span>
+        <div class="slider-container">
+          <input type="range" id="energy-slider" min="0" max="100" value="10" />
+        </div>
+        <span class="temp-display" id="temp-display">250 K</span>
+      </div>
+
+      <div class="state-buttons">
+        <button class="state-btn" onclick="setEnergy(0)">BEC</button>
+        <button class="state-btn active" onclick="setEnergy(10)">Solid</button>
+        <button class="state-btn" onclick="setEnergy(30)">Liquid</button>
+        <button class="state-btn" onclick="setEnergy(55)">Gas</button>
+        <button class="state-btn" onclick="setEnergy(90)">Plasma</button>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="particle-canvas"></canvas>
+        <div class="state-label-overlay" id="state-label">Solid</div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <h3>What's happening</h3>
+          <p id="description">Particles vibrate in fixed positions. Strong bonds keep them locked in a lattice structure.</p>
+        </div>
+        <div class="info-box">
+          <h3>Particle speed</h3>
+          <div class="meter"><div class="meter-fill" id="speed-meter" style="width: 15%; background: #4db6ac;"></div></div>
+        </div>
+        <div class="info-box">
+          <h3>Particle freedom</h3>
+          <div class="meter"><div class="meter-fill" id="freedom-meter" style="width: 10%; background: #4db6ac;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="energy-continuum">
+      <div class="continuum-title">The energy continuum</div>
+      <div class="continuum-bar">
+        <div class="continuum-segment seg-bec"    onclick="setEnergy(0)">BEC<span>~0 K</span></div>
+        <div class="continuum-segment seg-solid"  onclick="setEnergy(10)">Solid<span>Low</span></div>
+        <div class="continuum-segment seg-liquid" onclick="setEnergy(30)">Liquid<span>Medium</span></div>
+        <div class="continuum-segment seg-gas"    onclick="setEnergy(55)">Gas<span>High</span></div>
+        <div class="continuum-segment seg-plasma" onclick="setEnergy(90)">Plasma<span>Very high</span></div>
+      </div>
+    </div>
+
+    <div class="key-insight">
+      <h3>Key insight</h3>
+      <p id="insight-text">All states of matter exist on an energy continuum. As you add energy, particles move faster and break free from bonds. BEC and Plasma are the two extremes — in BEC, particles lose their individuality and merge; in Plasma, atoms lose their electrons and become ionised.</p>
+    </div>
+
+    <div class="credits">NEETlab · Interactive learning resource</div>
+  </div>
+
+  <script>
+    // ── Canvas setup ──
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let currentEnergy = 10;
+    const NUM_PARTICLES = 40;
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // reset before scaling (resize-safe)
+      ctx.scale(dpr, dpr);
+      initParticles();
+    }
+
+    function initParticles() {
+      particles = [];
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const cols = 8;
+      const rows = 5;
+      const spacingX = w / (cols + 1);
+      const spacingY = h / (rows + 1);
+
+      for (let i = 0; i < NUM_PARTICLES; i++) {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        particles.push({
+          baseX: spacingX * (col + 1),
+          baseY: spacingY * (row + 1),
+          x: spacingX * (col + 1),
+          y: spacingY * (row + 1),
+          vx: 0,
+          vy: 0,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    // ── State definitions ──
+    const stateData = {
+      bec: {
+        label: 'Bose-Einstein Condensate',
+        color: '#4fc3f7',
+        description: 'Near absolute zero, particles lose their individual identity. They merge into a single quantum state, behaving as one giant "super-atom".',
+        insight: 'BEC is the coldest state possible. Particles stop acting like separate objects and become indistinguishable — a purely quantum phenomenon predicted by Bose and Einstein in 1924.'
+      },
+      solid: {
+        label: 'Solid',
+        color: '#4db6ac',
+        description: 'Particles vibrate in fixed positions. Strong bonds keep them locked in a lattice structure.',
+        insight: 'In a solid, particles have enough energy to vibrate but not enough to break free from their neighbors. The rigid structure gives solids their definite shape.'
+      },
+      liquid: {
+        label: 'Liquid',
+        color: '#64b5f6',
+        description: 'Particles slide past each other. Bonds are weaker and constantly forming and breaking.',
+        insight: 'Liquids have enough energy to overcome some intermolecular forces, allowing particles to flow. They take the shape of their container but maintain definite volume.'
+      },
+      gas: {
+        label: 'Gas',
+        color: '#ffb74d',
+        description: 'Particles move freely and rapidly. They rarely interact except during collisions.',
+        insight: 'Gas particles have enough energy to completely overcome intermolecular forces. They spread out to fill any container and are highly compressible.'
+      },
+      plasma: {
+        label: 'Plasma',
+        color: '#ff6090',
+        description: 'Electrons are ripped from atoms! You now have a mix of positive ions and free electrons.',
+        insight: 'Plasma is the most common state in the visible universe — stars, lightning, and neon signs are all plasma. The extreme energy ionises atoms, creating an electrically conductive soup.'
+      }
+    };
+
+    function getState(energy) {
+      if (energy < 3) return 'bec';
+      if (energy < 20) return 'solid';
+      if (energy < 45) return 'liquid';
+      if (energy < 75) return 'gas';
+      return 'plasma';
+    }
+
+    function setEnergy(val) {
+      currentEnergy = val;
+      document.getElementById('energy-slider').value = val;
+      updateUI();
+    }
+
+    function updateUI() {
+      const state = getState(currentEnergy);
+      const data = stateData[state];
+
+      document.getElementById('state-label').textContent = data.label;
+      document.getElementById('state-label').style.color = data.color;
+      document.getElementById('description').textContent = data.description;
+      document.getElementById('insight-text').textContent = data.insight;
+
+      const speedPercent = state === 'bec' ? 2 : Math.min(95, currentEnergy * 1.1);
+      const freedomPercent = state === 'bec' ? 5 : Math.min(95, currentEnergy * 1.05);
+      document.getElementById('speed-meter').style.width = speedPercent + '%';
+      document.getElementById('speed-meter').style.background = data.color;
+      document.getElementById('freedom-meter').style.width = freedomPercent + '%';
+      document.getElementById('freedom-meter').style.background = data.color;
+
+      let temp;
+      if (currentEnergy < 3) {
+        temp = (currentEnergy * 0.5).toFixed(1) + ' nK';
+      } else {
+        temp = Math.round(50 + currentEnergy * 100) + ' K';
+      }
+      document.getElementById('temp-display').textContent = temp;
+
+      document.querySelectorAll('.state-btn').forEach(btn => btn.classList.remove('active'));
+      const stateIndex = { bec: 0, solid: 1, liquid: 2, gas: 3, plasma: 4 }[state];
+      const btns = document.querySelectorAll('.state-btn');
+      if (btns[stateIndex]) btns[stateIndex].classList.add('active');
+    }
+
+    // ── Animation ──
+    function animate() {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const state = getState(currentEnergy);
+      const time = Date.now() / 1000;
+
+      ctx.clearRect(0, 0, w, h);
+
+      particles.forEach((p, i) => {
+        let x, y, radius, color, alpha = 1;
+
+        if (state === 'bec') {
+          const cx = w / 2;
+          const cy = h / 2;
+          const wave = Math.sin(time * 2 + i * 0.15) * 4;
+          x = cx + wave + Math.cos(i * 0.5) * 8;
+          y = cy + Math.cos(time * 2 + i * 0.2) * 4 + Math.sin(i * 0.5) * 8;
+          radius = 10;
+          color = '#4fc3f7';
+          alpha = 0.5;
+        } else if (state === 'solid') {
+          const vib = currentEnergy * 0.12;
+          x = p.baseX + Math.sin(time * 12 + p.phase) * vib;
+          y = p.baseY + Math.cos(time * 12 + p.phase * 1.3) * vib;
+          radius = 14;
+          color = '#4db6ac';
+        } else if (state === 'liquid') {
+          const drift = currentEnergy * 0.35;
+          x = p.baseX + Math.sin(time * 2 + p.phase) * drift;
+          y = p.baseY + Math.cos(time * 1.8 + p.phase) * drift * 0.7;
+          x = Math.max(20, Math.min(w - 20, x));
+          y = Math.max(20, Math.min(h - 20, y));
+          radius = 13;
+          color = '#64b5f6';
+        } else if (state === 'gas') {
+          p.vx += (Math.random() - 0.5) * 1.8;
+          p.vy += (Math.random() - 0.5) * 1.8;
+          p.vx *= 0.96;
+          p.vy *= 0.96;
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 15 || p.x > w - 15) p.vx *= -1;
+          if (p.y < 15 || p.y > h - 15) p.vy *= -1;
+          p.x = Math.max(15, Math.min(w - 15, p.x));
+          p.y = Math.max(15, Math.min(h - 15, p.y));
+          x = p.x;
+          y = p.y;
+          radius = 11;
+          color = '#ffb74d';
+        } else {
+          // Plasma
+          p.vx += (Math.random() - 0.5) * 3.5;
+          p.vy += (Math.random() - 0.5) * 3.5;
+          p.vx *= 0.94;
+          p.vy *= 0.94;
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 15 || p.x > w - 15) p.vx *= -1;
+          if (p.y < 15 || p.y > h - 15) p.vy *= -1;
+          p.x = Math.max(15, Math.min(w - 15, p.x));
+          p.y = Math.max(15, Math.min(h - 15, p.y));
+          x = p.x;
+          y = p.y;
+          radius = 11;
+          color = '#ff6090';
+
+          // Free electron orbiting
+          const eAngle = time * 7 + i;
+          const eDist = 16 + Math.sin(time * 4 + i) * 4;
+          const ex = x + Math.cos(eAngle) * eDist;
+          const ey = y + Math.sin(eAngle) * eDist;
+
+          ctx.beginPath();
+          ctx.arc(ex, ey, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#4fc3f7';
+          ctx.globalAlpha = 0.85;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    // ── Event listeners ──
+    document.getElementById('energy-slider').addEventListener('input', (e) => {
+      currentEnergy = parseInt(e.target.value);
+      updateUI();
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // ── Init ──
+    resizeCanvas();
+    updateUI();
+    animate();
+  </script>
+</body>
+</html>

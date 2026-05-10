@@ -175,7 +175,61 @@ export const labs: Lab[] = [
       },
     },
   },
-  
+  {
+    slug: "states-of-matter",
+    title: "States of Matter — From BEC to Plasma",
+    shortTitle: "States of Matter",
+    chapter: "States of Matter",
+    domain: "physical",
+    difficulty: "easy",
+    weightage: "2-3",
+    description:
+      "Drag the energy slider from absolute zero to a million Kelvin. Watch particles transition from a Bose-Einstein Condensate, through solid, liquid, gas, and into ionised plasma. Understand why all states are just energy in disguise.",
+    tags: ["states-of-matter", "kinetic-theory", "phase-transition", "bec", "plasma"],
+    is3D: false,
+    published: true,
+    type: "html",
+    htmlPath: "/labs-html/states-of-matter/index.html",
+    canvasHint: "drag the slider · click any state · watch the particles",
+    learningNotes: {
+      intro:
+        "Solid, liquid, gas — what students learn first. But the full story has two more states: Bose-Einstein Condensate near absolute zero, and Plasma at extreme temperatures. All five sit on a single energy continuum: heat is just particles moving, and matter changes character based on how much energy you give it.",
+      facts: [
+        {
+          label: "What separates the states",
+          value: "Kinetic energy",
+          note: "more energy → particles overcome attractive forces → state changes",
+        },
+        {
+          label: "Bose-Einstein Condensate",
+          value: "~0 K",
+          note: "predicted in 1924, first made in lab in 1995 — particles merge into one quantum state",
+        },
+        {
+          label: "Plasma",
+          value: "Most common state in universe",
+          note: "stars, lightning, neon signs — atoms are ionised, electrons roam free",
+        },
+        {
+          label: "Why ice floats on water",
+          value: "Hydrogen bonding",
+          note: "solid H₂O is less dense than liquid H₂O — rare exception to the usual solid > liquid density rule",
+        },
+      ],
+      memoryTrick:
+        "Five states, one slider — energy is the only knob. Cold = order, hot = chaos.",
+      question: {
+        text: "Which of the following is NOT a characteristic of the gaseous state?",
+        options: [
+          "Particles have negligible intermolecular forces",
+          "Particles fill the entire volume of the container",
+          "Particles have a fixed shape and volume",
+          "Particles move randomly with high kinetic energy",
+        ],
+        correctIndex: 2,
+      },
+    },
+  },
 ];
 
 // Helper: get a lab by slug (used by individual lab pages)
