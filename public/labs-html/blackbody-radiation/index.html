@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackbody Radiation Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,600;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #03020a;
+  --panel: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.07);
+  --text: #f0ece2;
+  --muted: #7a7268;
+  --accent: #e8a030;
+  --cool: #5bc8f5;
+  --green: #6ee7a0;
+  --red: #ff6b6b;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Lora', Georgia, serif;
+  min-height: 100vh;
+  padding: 20px 14px;
+  transition: background 0.6s ease;
+}
+
+.container { max-width: 960px; margin: 0 auto; }
+
+/* ── Header ── */
+header { text-align: center; margin-bottom: 22px; }
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  letter-spacing: 5px;
+  line-height: 1;
+  background: linear-gradient(120deg, #ff8040 0%, #ffe070 45%, #60c8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+}
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 270px;
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 660px) { .layout { grid-template-columns: 1fr; } }
+
+/* ── Canvas card ── */
+.canvas-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+canvas { display: block; width: 100%; }
+
+/* ── Toggles ── */
+.toggle-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.tog {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tog.on { border-color: var(--cool); color: var(--cool); background: rgba(91,200,245,0.07); }
+
+/* ── Temperature control ── */
+.temp-control { padding: 14px 18px 16px; }
+
+.temp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.temp-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.6rem;
+  line-height: 1;
+  transition: color 0.4s;
+}
+.temp-K {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.temp-label {
+  margin-left: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+/* ── Slider ── */
+.slider-track {
+  height: 5px;
+  border-radius: 3px;
+  margin-bottom: 0;
+  background: linear-gradient(to right,
+    #cc1100 0%, #ff4400 15%, #ff8800 30%,
+    #ffcc44 45%, #ffffff 60%, #bbccff 75%, #8899ff 100%);
+}
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  background: transparent;
+  margin-top: -5px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255,255,255,0.6), 0 0 4px white;
+  transition: transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+/* ── Right panel cards ── */
+.side { display: flex; flex-direction: column; gap: 12px; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 15px;
+}
+.card-label {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.58rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+
+/* ── Object presets ── */
+.preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.preset-btn {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  color: #bbb;
+  cursor: pointer;
+  padding: 7px 5px;
+  font-family: 'Lora', serif;
+  font-size: 0.67rem;
+  text-align: center;
+  transition: all 0.18s;
+  line-height: 1.45;
+}
+.preset-btn .em { display: block; font-size: 1.2rem; margin-bottom: 1px; }
+.preset-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+.preset-btn.active {
+  background: rgba(232,160,48,0.1);
+  border-color: rgba(232,160,48,0.5);
+  color: #ffd166;
+}
+
+/* ── Data rows ── */
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 7px;
+  font-size: 0.73rem;
+}
+.data-row:last-child { margin-bottom: 0; }
+.dk { color: var(--muted); font-family: 'Fira Code', monospace; font-size: 0.62rem; }
+.dv { font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--green); font-weight: 500; }
+
+.formula {
+  display: block;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.67rem;
+  color: var(--cool);
+  background: rgba(91,200,245,0.05);
+  border: 1px solid rgba(91,200,245,0.12);
+  border-radius: 5px;
+  padding: 4px 8px;
+  margin: 6px 0 10px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Spectrum strip ── */
+.spec-strip {
+  height: 11px;
+  border-radius: 4px;
+  margin-top: 8px;
+  background: linear-gradient(to right,
+    #8800ff, #4400ff 8%, #0000ff 15%, #0066ff 25%,
+    #00ccff 35%, #00ff88 46%, #88ff00 56%,
+    #ffff00 65%, #ffbb00 75%, #ff4400 87%, #ff0000);
+  position: relative;
+  overflow: visible;
+}
+.pip {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 19px;
+  border-radius: 2px;
+  background: white;
+  transform: translateX(-50%);
+  box-shadow: 0 0 7px white;
+  transition: left 0.35s ease;
+}
+.spec-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.57rem;
+  color: #444;
+  margin-top: 4px;
+  font-family: 'Fira Code', monospace;
+}
+
+/* ── Insight ── */
+.insight {
+  font-size: 0.77rem;
+  line-height: 1.65;
+  color: #b8b0a0;
+  font-style: italic;
+}
+.insight .hl { color: #ffd166; font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="title">Blackbody Radiation</div>
+    <div class="subtitle">From classical catastrophe to quantum revolution — drag the slider</div>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT: Canvas + Controls -->
+    <div class="canvas-card">
+      <canvas id="bbC" height="330"></canvas>
+
+      <div class="toggle-bar">
+        <button class="tog on" id="tUV" onclick="toggleUV()">UV Catastrophe</button>
+        <button class="tog on" id="tGhost" onclick="toggleGhost()">Ghost Curves</button>
+        <button class="tog" id="tLog" onclick="toggleLog()">Log Scale</button>
+      </div>
+
+      <div class="temp-control">
+        <div class="temp-row">
+          <span class="temp-num" id="tNum">5778</span>
+          <span class="temp-K">K</span>
+          <span class="temp-label" id="tLbl">☀️ Sun</span>
+        </div>
+        <div class="slider-track"></div>
+        <input type="range" id="slider" min="300" max="30000" step="50" value="5778">
+      </div>
+    </div>
+
+    <!-- RIGHT: Cards -->
+    <div class="side">
+
+      <div class="card">
+        <div class="card-label">Famous Objects</div>
+        <div class="preset-grid">
+          <button class="preset-btn" onclick="setT(310)"><span class="em">🧑</span>Human Body<br>310 K</button>
+          <button class="preset-btn" onclick="setT(800)"><span class="em">🔴</span>Red-Hot Iron<br>800 K</button>
+          <button class="preset-btn" onclick="setT(3000)"><span class="em">💡</span>Tungsten Bulb<br>3000 K</button>
+          <button class="preset-btn" onclick="setT(5778)"><span class="em">☀️</span>Sun Surface<br>5778 K</button>
+          <button class="preset-btn" onclick="setT(10000)"><span class="em">⭐</span>Blue Star<br>10000 K</button>
+          <button class="preset-btn" onclick="setT(28000)"><span class="em">💫</span>O-Type Star<br>28000 K</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Wien's Displacement Law</div>
+        <span class="formula">λ_max = 2.898×10⁻³ / T</span>
+        <div class="data-row"><span class="dk">Peak λ</span><span class="dv" id="peakL">—</span></div>
+        <div class="data-row"><span class="dk">Region</span><span class="dv" id="peakR" style="color:#ffd166">—</span></div>
+        <div class="spec-strip"><div class="pip" id="pip" style="left:50%"></div></div>
+        <div class="spec-labels"><span>UV</span><span>Violet</span><span>Green</span><span>Red</span><span>IR</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Stefan–Boltzmann Law</div>
+        <span class="formula">P = σ T⁴ &nbsp; (σ = 5.67×10⁻⁸)</span>
+        <div class="data-row"><span class="dk">Power vs Sun</span><span class="dv" id="sbP">—</span></div>
+        <div class="data-row">
+          <span class="dk">Double T →</span>
+          <span class="dv" style="color:#ff9966">16× power</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">💡 Intuition</div>
+        <p class="insight" id="insight">—</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+// ── Physics constants ──
+const hh = 6.626e-34, cc = 3e8, kk = 1.381e-23, bW = 2.898e-3;
+
+function planck(lnm, T) {
+  const l = lnm * 1e-9;
+  return (2 * hh * cc * cc / Math.pow(l, 5)) / (Math.exp(hh * cc / (l * kk * T)) - 1);
+}
+function rayleigh(lnm, T) {
+  const l = lnm * 1e-9;
+  return 2 * cc * kk * T / Math.pow(l, 4);
+}
+function wienNm(T) { return bW / T * 1e9; }
+
+// ── State ──
+let T = 5778, showUV = true, showGhost = true, useLog = false;
+
+const canvas = document.getElementById('bbC');
+const ctx = canvas.getContext('2d');
+const LMIN = 100, LMAX = 3000, STEPS = 800;
+
+// ── Color helpers ──
+function curveRGB(T) {
+  if (T < 600)   return [255, 30, 0];
+  if (T < 1200)  return [255, 90, 0];
+  if (T < 2500)  return [255, 150, 40];
+  if (T < 4000)  return [255, 210, 100];
+  if (T < 6500)  return [255, 248, 220];
+  if (T < 14000) return [180, 210, 255];
+  return            [140, 180, 255];
+}
+
+function ambientBg(T) {
+  if (T < 700)   return '#0a0300';
+  if (T < 1500)  return '#0c0500';
+  if (T < 3500)  return '#0d0800';
+  if (T < 7000)  return '#0a0900';
+  if (T < 15000) return '#050810';
+  return '#030508';
+}
+
+function getRegion(nm) {
+  if (nm < 10)   return 'X-ray';
+  if (nm < 380)  return 'Ultraviolet';
+  if (nm <= 780) return 'Visible ✓';
+  if (nm < 2500) return 'Near-IR';
+  if (nm < 25000)return 'Mid-IR';
+  return 'Far-IR';
+}
+
+function getInsight(T) {
+  if (T < 500)   return 'At body/room temperature, objects emit only <span class="hl">infrared radiation</span> — invisible to human eyes. This is why thermal cameras can see warm bodies in total darkness.';
+  if (T < 1200)  return 'Red-hot: only the very longest visible wavelengths escape. More than 95% of energy is still <span class="hl">invisible infrared</span>.';
+  if (T < 2500)  return 'Candle and lava range. That warm orange glow — but peak is <span class="hl">deep infrared</span>. You feel more heat than you see light.';
+  if (T < 4500)  return 'Tungsten filament territory. Warm, "incandescent" white light — but peak is <span class="hl">in the infrared</span>. Only ~10% of electrical energy becomes visible light!';
+  if (T < 7000)  return 'Our Sun! Peak is near <span class="hl">green (≈500 nm)</span>, yet it looks white-yellow — because <em>all</em> visible wavelengths are emitted simultaneously. Our eyes evolved here.';
+  if (T < 15000) return 'Blue-white star. Intense <span class="hl">UV output</span>. Life on nearby planets would need heavy atmospheric shielding — like our ozone layer, but far more.';
+  return 'O-type supergiant. Most energy in <span class="hl">UV and soft X-ray</span>. Burns out in just a few million years — a cosmic flash in the pan.';
+}
+
+function getTempLabel(T) {
+  const map = [[310,'🧑 Human'],[800,'🔴 Red-Hot Iron'],[3000,'💡 Tungsten Bulb'],[5778,'☀️ Sun'],[10000,'⭐ Blue Star'],[28000,'💫 O-Star']];
+  for (const [t, name] of map) if (Math.abs(T - t) < 60) return name;
+  return '';
+}
+
+// ── Draw ──
+function draw() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth, H = 330;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+
+  const pad = { l: 48, r: 18, t: 22, b: 36 };
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+
+  // clear
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#000008';
+  ctx.fillRect(0, 0, W, H);
+
+  // normalization
+  const pNm = wienNm(T);
+  const pVal = planck(pNm, T);
+
+  function xL(nm) {
+    if (!useLog) return pad.l + (nm - LMIN) / (LMAX - LMIN) * pw;
+    const a = Math.log10(LMIN), b2 = Math.log10(LMAX);
+    return pad.l + (Math.log10(nm) - a) / (b2 - a) * pw;
+  }
+  function yV(v) {
+    if (!useLog) return pad.t + ph - (v / pVal) * ph;
+    const logMin = -4, logMax = 0;
+    const lv = Math.log10(Math.max(v / pVal, 1e-5));
+    return pad.t + ph - (lv - logMin) / (logMax - logMin) * ph;
+  }
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 5; i++) {
+    const y = pad.t + i * ph / 5;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + pw, y); ctx.stroke();
+  }
+  for (const nm of [500, 1000, 1500, 2000, 2500]) {
+    const x = xL(nm);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+  }
+
+  // Visible band
+  const vx1 = xL(380), vx2 = xL(780);
+  const vg = ctx.createLinearGradient(vx1, 0, vx2, 0);
+  vg.addColorStop(0,    'rgba(140,0,255,0.1)');
+  vg.addColorStop(0.15, 'rgba(0,0,220,0.1)');
+  vg.addColorStop(0.35, 'rgba(0,200,80,0.1)');
+  vg.addColorStop(0.6,  'rgba(240,230,0,0.1)');
+  vg.addColorStop(0.85, 'rgba(255,80,0,0.1)');
+  vg.addColorStop(1,    'rgba(220,0,0,0.1)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(vx1, pad.t, vx2 - vx1, ph);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([2, 4]);
+  ctx.beginPath(); ctx.moveTo(vx1, pad.t); ctx.lineTo(vx1, pad.t + ph); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(vx2, pad.t); ctx.lineTo(vx2, pad.t + ph); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  ctx.font = "9px 'Fira Code', monospace";
+  ctx.textAlign = 'center';
+  ctx.fillText('VISIBLE', (vx1 + vx2) / 2, pad.t + 12);
+
+  // Classical UV catastrophe
+  if (showUV) {
+    const cn = rayleigh(pNm, T);
+    ctx.strokeStyle = 'rgba(255,80,80,0.45)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i <= STEPS; i++) {
+      const nm = LMIN + i / STEPS * (LMAX - LMIN);
+      const v  = rayleigh(nm, T);
+      const x  = xL(nm);
+      const y  = Math.max(pad.t - 30, yV(v));
+      if (first) { ctx.moveTo(x, Math.min(y, pad.t + ph)); first = false; }
+      else ctx.lineTo(x, Math.min(y, pad.t - 30));
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle = 'rgba(255,100,100,0.6)';
+    ctx.font = "9px 'Fira Code', monospace";
+    ctx.textAlign = 'left';
+    ctx.fillText('Rayleigh-Jeans (Classical) → ∞ as λ → 0', pad.l + 4, pad.t + 14);
+  }
+
+  // Ghost curves
+  if (showGhost) {
+    [T * 0.5, T * 0.75, T * 1.5, T * 2].filter(t => t >= 300 && t <= 60000).forEach(gT => {
+      ctx.strokeStyle = 'rgba(160,140,255,0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      let first = true;
+      for (let i = 0; i <= STEPS; i++) {
+        const nm = LMIN + i / STEPS * (LMAX - LMIN);
+        const v  = planck(nm, gT);
+        const x  = xL(nm);
+        const y  = Math.max(pad.t, Math.min(pad.t + ph + 4, yV(v)));
+        if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    });
+  }
+
+  // Main curve — collect points
+  const pts = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const nm = LMIN + i / STEPS * (LMAX - LMIN);
+    const v  = planck(nm, T);
+    pts.push({ nm, x: xL(nm), y: Math.max(pad.t, Math.min(pad.t + ph, yV(v))) });
+  }
+
+  // Fill under curve
+  const [r, g, b] = curveRGB(T);
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pad.t + ph);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length - 1].x, pad.t + ph);
+  ctx.closePath();
+  const fg = ctx.createLinearGradient(0, pad.t, 0, pad.t + ph);
+  fg.addColorStop(0, `rgba(${r},${g},${b},0.14)`);
+  fg.addColorStop(1, `rgba(${r},${g},${b},0.01)`);
+  ctx.fillStyle = fg;
+  ctx.fill();
+
+  // Glow line
+  const col = `rgb(${r},${g},${b})`;
+  ctx.shadowColor = col;
+  ctx.shadowBlur  = 14;
+  ctx.strokeStyle = col;
+  ctx.lineWidth   = 2.5;
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Peak dashed marker
+  const px = xL(pNm);
+  const closestPt = pts.reduce((a, b2) => Math.abs(b2.nm - pNm) < Math.abs(a.nm - pNm) ? b2 : a);
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.setLineDash([2, 4]);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(px, closestPt.y - 4); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const labelX  = px > pad.l + pw * 0.6 ? px - 6 : px + 6;
+  const align   = px > pad.l + pw * 0.6 ? 'right' : 'left';
+  ctx.fillStyle = 'rgba(255,255,255,0.65)';
+  ctx.font      = "bold 10px 'Fira Code', monospace";
+  ctx.textAlign = align;
+  ctx.fillText(`λ_max ≈ ${Math.round(pNm)} nm`, labelX, Math.max(pad.t + 24, closestPt.y - 8));
+
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ph + 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l - 2, pad.t + ph); ctx.lineTo(pad.l + pw, pad.t + ph); ctx.stroke();
+
+  // Axis ticks + labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font      = "10px 'Fira Code', monospace";
+  ctx.textAlign = 'center';
+  for (const nm of [500, 1000, 1500, 2000, 2500]) {
+    ctx.fillText(nm, xL(nm), pad.t + ph + 22);
+  }
+  ctx.fillText('λ  (nm)', pad.l + pw / 2, H - 4);
+
+  ctx.save();
+  ctx.translate(12, pad.t + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Spectral Radiance', 0, 0);
+  ctx.restore();
+}
+
+// ── Update UI ──
+function updateUI() {
+  const [r, g, b] = curveRGB(T);
+
+  document.getElementById('tNum').textContent = T.toLocaleString();
+  document.getElementById('tNum').style.color = `rgb(${r},${g},${b})`;
+  document.getElementById('tLbl').textContent  = getTempLabel(T);
+  document.body.style.background = ambientBg(T);
+
+  const pnm = wienNm(T);
+  document.getElementById('peakL').textContent = pnm < 1000
+    ? `${Math.round(pnm)} nm`
+    : `${(pnm / 1000).toFixed(2)} μm`;
+  document.getElementById('peakR').textContent = getRegion(pnm);
+
+  // Spectrum pip: map 380–780 nm to 14–85% on bar
+  const frac = pnm < 380 ? 0.05 : pnm > 780 ? 0.96 : 0.14 + (pnm - 380) / (780 - 380) * 0.71;
+  document.getElementById('pip').style.left = (frac * 100) + '%';
+
+  const rel = Math.pow(T / 5778, 4);
+  document.getElementById('sbP').textContent =
+    rel > 1e6  ? `${(rel / 1e6).toFixed(1)}M ×` :
+    rel > 1000 ? `${Math.round(rel / 1000)}K ×` :
+    rel < 0.01 ? rel.toExponential(1) + ' ×' :
+    rel.toFixed(3) + ' ×';
+
+  document.getElementById('insight').innerHTML = getInsight(T);
+
+  // Preset active states
+  const pts = [310, 800, 3000, 5778, 10000, 28000];
+  document.querySelectorAll('.preset-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', Math.abs(T - pts[i]) < 60);
+  });
+
+  draw();
+}
+
+// ── Controls ──
+function setT(t) { T = t; document.getElementById('slider').value = t; updateUI(); }
+function toggleUV()    { showUV    = !showUV;    document.getElementById('tUV').classList.toggle('on', showUV);    draw(); }
+function toggleGhost() { showGhost = !showGhost; document.getElementById('tGhost').classList.toggle('on', showGhost); draw(); }
+function toggleLog()   { useLog    = !useLog;    document.getElementById('tLog').classList.toggle('on', useLog);   draw(); }
+
+document.getElementById('slider').addEventListener('input', e => { T = +e.target.value; updateUI(); });
+window.addEventListener('resize', draw);
+
+updateUI();
+</script>
+</body>
+</html>

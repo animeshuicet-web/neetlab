@@ -1,0 +1,79 @@
+/* NEETlab Lab Authoring Theme
+   Linked by every uploaded HTML lab.
+   Change tokens here → all labs update. */
+
+:root {
+  /* Brand */
+  --nl-bg: #0a0a0f;
+  --nl-card: #0f0f17;
+  --nl-border: #1a1a25;
+  --nl-accent: #E8550A;
+  --nl-cool: #4ECDC4;
+  --nl-warning: #FFD93D;
+  --nl-text: #f5efe6;
+  --nl-text-secondary: #a8a297;
+  --nl-text-muted: #5a5750;
+
+  /* Atoms (standard across all molecule labs) */
+  --nl-atom-c: #2c2c2c;
+  --nl-atom-h: #f0f0f0;
+  --nl-atom-o: #ff5252;
+  --nl-atom-n: #4d8eff;
+  --nl-atom-cl: #5dd959;
+  --nl-bond: #666666;
+  --nl-orbital-top: #E8550A;
+  --nl-orbital-bottom: #4ECDC4;
+  --nl-pi-cloud: rgba(232, 85, 10, 0.35);
+
+  /* Type */
+  --nl-font-body: 'Manrope', system-ui, -apple-system, sans-serif;
+  --nl-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--nl-bg);
+  color: var(--nl-text);
+  font-family: var(--nl-font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body {
+  padding: 16px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+* { box-sizing: border-box; }
+
+button {
+  font-family: var(--nl-font-body);
+  background: var(--nl-accent);
+  color: var(--nl-text);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+button:hover { opacity: 0.9; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.nl-card {
+  background: var(--nl-card);
+  border: 1px solid var(--nl-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.nl-mono { font-family: var(--nl-font-mono); }
+.nl-label {
+  font-family: var(--nl-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 10px;
+  color: var(--nl-text-secondary);
+}
