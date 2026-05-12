@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Matter Waves — NEETlab</title>
+<link rel="stylesheet" href="../_theme.css">
+<style>
+  /* ===== Warm-amber theme overrides (matches Blackbody) ===== */
+  :root {
+    --lab-bg: #0a0806;
+    --lab-surface: #1a1410;
+    --lab-surface-2: #241a13;
+    --lab-text: #f5e9d4;
+    --lab-text-dim: #b09478;
+    --lab-text-mute: #7a6249;
+    --lab-accent: #ffa726;
+    --lab-accent-2: #ff7043;
+    --lab-success: #66bb6a;
+    --lab-danger: #ef5350;
+    --lab-border: rgba(255,167,38,0.18);
+    --lab-border-strong: rgba(255,167,38,0.4);
+    --font-display: 'Bebas Neue', 'Oswald', sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--lab-bg);
+    color: var(--lab-text);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    font-size: 15px;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at top, rgba(255,167,38,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom, rgba(255,112,67,0.04) 0%, transparent 50%),
+      var(--lab-bg);
+    padding: 12px;
+  }
+
+  .lab { max-width: 640px; margin: 0 auto; }
+
+  /* ===== Header ===== */
+  .lab-header { text-align: center; padding: 16px 4px 20px; }
+  .lab-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 9vw, 48px);
+    letter-spacing: 2px;
+    color: var(--lab-accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .lab-header .subtitle {
+    color: var(--lab-text-dim);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ===== Panels ===== */
+  .panel {
+    background: var(--lab-surface);
+    border: 1px solid var(--lab-border);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 14px 14px 10px;
+    border-bottom: 1px solid var(--lab-border);
+  }
+  .panel-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--lab-accent);
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    color: var(--lab-text);
+    line-height: 1.1;
+  }
+  .panel-sub {
+    color: var(--lab-text-dim);
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.45;
+  }
+  .panel-body { padding: 14px; }
+
+  /* ===== Controls ===== */
+  .control-row { margin-bottom: 14px; }
+  .control-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 12px;
+    color: var(--lab-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .control-value {
+    font-family: var(--font-mono);
+    color: var(--lab-accent);
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* Big, touch-friendly slider */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 44px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--lab-surface-2);
+    border-radius: 2px;
+    border: 1px solid var(--lab-border);
+  }
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    background: var(--lab-surface-2);
+    border-radius: 2px;
+    border: 1px solid var(--lab-border);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    background: var(--lab-accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid var(--lab-bg);
+    box-shadow: 0 0 0 1px var(--lab-accent), 0 2px 8px rgba(255,167,38,0.4);
+    margin-top: -12px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: var(--lab-accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid var(--lab-bg);
+    box-shadow: 0 0 0 1px var(--lab-accent), 0 2px 8px rgba(255,167,38,0.4);
+  }
+
+  /* Selects — replace pill grids on mobile */
+  select {
+    width: 100%;
+    background: var(--lab-surface-2);
+    color: var(--lab-text);
+    border: 1px solid var(--lab-border);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%23ffa726' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    min-height: 48px;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--lab-accent);
+  }
+
+  /* ===== Canvas wrapper (RESPONSIVE — no fixed widths) ===== */
+  .canvas-wrap {
+    background: var(--lab-bg);
+    border-radius: 8px;
+    border: 1px solid var(--lab-border);
+    padding: 10px;
+    margin-bottom: 14px;
+    width: 100%;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ===== Readouts (always single column on phone) ===== */
+  .readout {
+    background: var(--lab-surface-2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--lab-accent);
+    margin-bottom: 10px;
+  }
+  .readout-label {
+    font-size: 11px;
+    color: var(--lab-text-mute);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+  .readout-value {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--lab-accent);
+    word-break: break-all;
+    line-height: 1.2;
+  }
+  .readout-sub {
+    font-size: 13px;
+    color: var(--lab-text-dim);
+    margin-top: 4px;
+  }
+
+  /* Two-up readouts on tablet+ only */
+  @media (min-width: 600px) {
+    .readout-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .readout-pair .readout { margin-bottom: 0; }
+  }
+
+  /* ===== Status banners ===== */
+  .status {
+    padding: 12px 14px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 8px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .status.allowed {
+    background: rgba(102,187,106,0.1);
+    border: 1px solid rgba(102,187,106,0.35);
+    color: var(--lab-success);
+  }
+  .status.forbidden {
+    background: rgba(239,83,80,0.1);
+    border: 1px solid rgba(239,83,80,0.35);
+    color: var(--lab-danger);
+  }
+  .status-em {
+    font-family: var(--font-display);
+    font-size: 16px;
+    letter-spacing: 1.2px;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ===== Working steps in calculator ===== */
+  .working {
+    background: var(--lab-surface-2);
+    padding: 12px 14px;
+    border-radius: 8px;
+    border-left: 3px solid var(--lab-accent);
+    margin-top: 10px;
+  }
+  .working-step {
+    margin: 6px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--lab-text);
+    word-break: break-word;
+    line-height: 1.5;
+  }
+  .working-step .step-label {
+    color: var(--lab-text-mute);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .working-step.answer .step-label { color: var(--lab-accent); }
+  .working-step.answer { font-size: 15px; color: var(--lab-accent); }
+
+  /* ===== Input ===== */
+  .input-line {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .input-line input[type="number"] {
+    flex: 1;
+    background: var(--lab-surface-2);
+    border: 1px solid var(--lab-border);
+    color: var(--lab-text);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    min-height: 48px;
+  }
+  .input-line input[type="number"]:focus {
+    outline: none;
+    border-color: var(--lab-accent);
+  }
+  .input-line .unit {
+    background: var(--lab-surface-2);
+    color: var(--lab-accent);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    border: 1px solid var(--lab-border);
+    min-width: 64px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ===== Intro / outro text blocks ===== */
+  .blurb {
+    padding: 12px 14px;
+    background: var(--lab-surface-2);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--lab-text);
+    line-height: 1.55;
+  }
+  .blurb strong { color: var(--lab-accent); }
+  .blurb em { color: var(--lab-text-dim); font-style: italic; }
+
+  /* ===== Footer ===== */
+  .lab-footer {
+    text-align: center;
+    padding: 16px 0 8px;
+    color: var(--lab-text-mute);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+  .lab-footer .brand { color: var(--lab-accent); font-weight: 600; }
+
+  /* ===== Reduced motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .panel canvas { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lab">
+
+  <!-- ===== HEADER ===== -->
+  <div class="lab-header">
+    <h1>MATTER WAVES</h1>
+    <div class="subtitle">de Broglie · Standing Waves · Orbitals</div>
+  </div>
+
+  <!-- ===== INTRO ===== -->
+  <div class="panel">
+    <div class="panel-body">
+      <div class="blurb">
+        <strong>Har cheez ek wave hai.</strong> Cricket ball, bullet, electron — sab. Lekin sirf <em>chhoti</em> cheezon ki wave dikhti hai, kyunki badi cheezon ki wavelength itni microscopic hoti hai ki measure karna impossible hai.
+        <br><br>
+        Electron ki wavelength ek atom ke barabar hoti hai. Isi liye electrons atoms mein standing waves banate hain — jise hum <strong>orbitals</strong> kehte hain.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- ===== PANEL 1: STANDING WAVE (HERO) ========== -->
+  <!-- ============================================== -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">PANEL 01 · HERO</span>
+      <div class="panel-title">FIT THE WAVE</div>
+      <div class="panel-sub">An electron's wave must close on itself around the nucleus. <strong>Only whole numbers of wavelengths are allowed.</strong> This is why orbits are quantized.</div>
+    </div>
+    <div class="panel-body">
+
+      <div class="canvas-wrap">
+        <canvas id="orbitCanvas"></canvas>
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">
+          <span>Wavelengths around orbit (n)</span>
+          <span class="control-value" id="nLabel">2.00</span>
+        </div>
+        <input type="range" id="nSlider" min="50" max="600" value="200" step="1">
+      </div>
+
+      <div class="status allowed" id="orbitStatus">
+        <span class="status-em" id="orbitStatusEm">ALLOWED · n = 2</span>
+        <span id="orbitStatusText">Standing wave closes on itself — this is Bohr's quantization.</span>
+      </div>
+
+      <div class="blurb" style="margin-top: 12px;">
+        Drag the slider to <em>any</em> integer (1, 2, 3 …): the wave closes and glows green. Drag to a fraction (1.5, 2.7 …): the wave's ends don't meet, destructive interference cancels it, orbit forbidden.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- ===== PANEL 2: SCALE + CALCULATOR ============ -->
+  <!-- ============================================== -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">PANEL 02 · CALCULATOR</span>
+      <div class="panel-title">FIND λ</div>
+      <div class="panel-sub">Every NEET de Broglie MCQ uses one form of λ = h/p. Pick the particle and what's given.</div>
+    </div>
+    <div class="panel-body">
+
+      <div class="control-row">
+        <div class="control-label"><span>Particle</span></div>
+        <select id="particleSelect">
+          <option value="cricket">Cricket ball (160 g)</option>
+          <option value="bullet">Bullet (5 g)</option>
+          <option value="dust">Dust grain (1 ng)</option>
+          <option value="electron" selected>Electron</option>
+          <option value="proton">Proton</option>
+          <option value="alpha">Alpha particle</option>
+          <option value="neutron">Neutron</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <div class="control-label"><span>What's given?</span></div>
+        <select id="modeSelect">
+          <option value="v" selected>Velocity (m/s)</option>
+          <option value="ke">Kinetic energy (eV)</option>
+          <option value="volt">Accelerating voltage (V)</option>
+          <option value="temp">Temperature (K)</option>
+        </select>
+      </div>
+
+      <div class="input-line">
+        <input type="number" id="valueInput" placeholder="Enter value" step="any" inputmode="decimal">
+        <div class="unit" id="unitDisplay">m/s</div>
+      </div>
+
+      <div class="readout" style="margin-top: 14px;">
+        <div class="readout-label">de Broglie λ</div>
+        <div class="readout-value" id="lambdaOut">—</div>
+        <div class="readout-sub" id="lambdaCompare">Enter a value above</div>
+      </div>
+
+      <div class="working" id="working" style="display: none;"></div>
+
+      <div class="blurb" style="margin-top: 12px;">
+        <strong>Try this:</strong> pick "Cricket ball" with velocity 30, then "Electron" with velocity 1e6. Watch λ jump 24 orders of magnitude. <em>That</em> is why heavy things never diffract.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- ===== PANEL 3: NEET ESSENTIALS =============== -->
+  <!-- ============================================== -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">PANEL 03 · NEET TOOLBOX</span>
+      <div class="panel-title">REMEMBER THESE</div>
+    </div>
+    <div class="panel-body">
+
+      <div class="readout">
+        <div class="readout-label">Master formula</div>
+        <div class="readout-value">λ = h/p = h/(mv)</div>
+        <div class="readout-sub">h = 6.626 × 10⁻³⁴ J·s · works for every particle</div>
+      </div>
+
+      <div class="readout">
+        <div class="readout-label">Electron shortcut</div>
+        <div class="readout-value">λ ≈ √(150/V) Å</div>
+        <div class="readout-sub">V in volts · works only for electrons</div>
+      </div>
+
+      <div class="readout">
+        <div class="readout-label">Bohr quantization</div>
+        <div class="readout-value">mvr = nh/2π</div>
+        <div class="readout-sub">because n full λ must fit: nλ = 2πr</div>
+      </div>
+
+      <div class="readout">
+        <div class="readout-label">Memory trick</div>
+        <div class="readout-value" style="font-family: var(--font-body); font-size: 15px;">Heavy = Hidden</div>
+        <div class="readout-sub">large mass → tiny wavelength → never observed</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="lab-footer">
+    <span class="brand">@neetyaari</span> · NEETLAB.CO.IN
+  </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- ===================== SCRIPT ========================= -->
+<!-- ====================================================== -->
+<script>
+'use strict';
+
+// ===== Physical constants =====
+const H = 6.626e-34;
+const ME = 9.109e-31;
+const MP = 1.673e-27;
+const MN = 1.675e-27;
+const MA = 6.645e-27;
+const QE = 1.602e-19;
+const KB = 1.381e-23;
+
+const PARTICLES = {
+  cricket:  { name: 'Cricket ball', mass: 0.16,    charge: 0,    defaultV: 30,     defaultKE: 50,   defaultT: 300 },
+  bullet:   { name: 'Bullet',       mass: 0.005,   charge: 0,    defaultV: 400,    defaultKE: 50,   defaultT: 300 },
+  dust:     { name: 'Dust grain',   mass: 1e-9,    charge: 0,    defaultV: 0.01,   defaultKE: 1e-6, defaultT: 300 },
+  electron: { name: 'Electron',     mass: ME,      charge: QE,   defaultV: 1e6,    defaultKE: 100,  defaultVolt: 100, defaultT: 300 },
+  proton:   { name: 'Proton',       mass: MP,      charge: QE,   defaultV: 1e5,    defaultKE: 100,  defaultVolt: 100, defaultT: 300 },
+  alpha:    { name: 'Alpha',        mass: MA,      charge: 2*QE, defaultV: 1e5,    defaultKE: 100,  defaultVolt: 100, defaultT: 300 },
+  neutron:  { name: 'Neutron',      mass: MN,      charge: 0,    defaultV: 1e4,    defaultKE: 100,  defaultT: 300 },
+};
+
+// ===== Number formatting =====
+function supScript(n) {
+  const map = { '-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹' };
+  return String(n).split('').map(c => map[c] || c).join('');
+}
+function formatSci(x, digits = 2) {
+  if (x === 0) return '0';
+  if (!isFinite(x) || isNaN(x)) return '—';
+  const exp = Math.floor(Math.log10(Math.abs(x)));
+  const mant = x / Math.pow(10, exp);
+  return mant.toFixed(digits) + ' × 10' + supScript(exp);
+}
+function formatLambda(lam) { return formatSci(lam) + ' m'; }
+
+function lambdaCompare(lam) {
+  if (!isFinite(lam) || isNaN(lam)) return '';
+  if (lam < 1e-30) return 'Smaller than the Planck length — meaningless';
+  if (lam < 1e-20) return 'Far smaller than a proton — unmeasurable';
+  if (lam < 1e-15) return 'Smaller than a proton (~10⁻¹⁵ m)';
+  if (lam < 1e-12) return 'Comparable to nuclear sizes';
+  if (lam < 1e-10) return 'X-ray wavelength range';
+  if (lam < 1e-9)  return '~ size of an atom (10⁻¹⁰ m)';
+  if (lam < 1e-7)  return 'UV / soft X-ray range';
+  if (lam < 1e-6)  return 'Visible light range';
+  return 'Macroscopic — somehow';
+}
+
+// ====================================================== //
+// ============ PANEL 1 — STANDING WAVE (HERO) ========== //
+// ====================================================== //
+
+let panel1 = { n: 2.0 };
+
+const nSlider = document.getElementById('nSlider');
+nSlider.addEventListener('input', () => {
+  panel1.n = nSlider.value / 100;
+  document.getElementById('nLabel').textContent = panel1.n.toFixed(2);
+  updateOrbitStatus();
+});
+
+function isInteger(x, tol = 0.04) {
+  return Math.abs(x - Math.round(x)) < tol && Math.round(x) >= 1;
+}
+
+function updateOrbitStatus() {
+  const allowed = isInteger(panel1.n);
+  const status = document.getElementById('orbitStatus');
+  const em = document.getElementById('orbitStatusEm');
+  const tx = document.getElementById('orbitStatusText');
+  if (allowed) {
+    status.className = 'status allowed';
+    em.textContent = 'ALLOWED · n = ' + Math.round(panel1.n);
+    tx.textContent = 'Standing wave closes on itself — this is Bohr\u2019s quantization.';
+  } else {
+    status.className = 'status forbidden';
+    em.textContent = 'FORBIDDEN';
+    tx.textContent = 'The wave\u2019s start and end don\u2019t meet — orbit cannot exist.';
+  }
+}
+
+// ===== Responsive canvas setup =====
+function setupCanvas(canvas, aspectRatio = 1) {
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = canvas.parentElement.clientWidth - 20; // minus padding
+  const cssHeight = cssWidth * aspectRatio;
+  canvas.style.width = cssWidth + 'px';
+  canvas.style.height = cssHeight + 'px';
+  canvas.width  = Math.round(cssWidth * dpr);
+  canvas.height = Math.round(cssHeight * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, W: cssWidth, H: cssHeight };
+}
+
+function drawOrbit(time) {
+  const canvas = document.getElementById('orbitCanvas');
+  const { ctx, W, H: cvH } = setupCanvas(canvas, 1); // 1:1 square — phone-friendly
+
+  ctx.clearRect(0, 0, W, cvH);
+
+  const cx = W / 2, cy = cvH / 2;
+  const R = Math.min(W, cvH) * 0.32;
+  const n = panel1.n;
+  const allowed = isInteger(n);
+
+  // Nucleus glow
+  const glow = ctx.createRadialGradient(cx, cy, 4, cx, cy, 40);
+  glow.addColorStop(0, 'rgba(255,167,38,0.6)');
+  glow.addColorStop(1, 'rgba(255,167,38,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Nucleus
+  ctx.fillStyle = '#ff7043';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#0a0806';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('+', cx, cy);
+
+  // Orbit reference circle
+  ctx.strokeStyle = allowed ? 'rgba(102,187,106,0.3)' : 'rgba(239,83,80,0.3)';
+  ctx.setLineDash([3, 4]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Standing wave
+  const breath = allowed ? (0.5 + 0.5 * Math.sin(time * 0.003)) : 1.0;
+  const A = R * 0.22 * (allowed ? (0.6 + 0.4 * breath) : 0.8);
+  const shakeX = allowed ? 0 : (Math.random() - 0.5) * 1.5;
+  const shakeY = allowed ? 0 : (Math.random() - 0.5) * 1.5;
+
+  ctx.strokeStyle = allowed ? '#66bb6a' : '#ef5350';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+
+  const steps = 720;
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * Math.PI * 2;
+    const r = R + A * Math.sin(n * theta);
+    const x = cx + shakeX + r * Math.cos(theta);
+    const y = cy + shakeY + r * Math.sin(theta);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  if (!allowed) {
+    // Mark start & end
+    const sr = R + A * Math.sin(0);
+    const er = R + A * Math.sin(n * Math.PI * 2);
+    const sx = cx + sr * Math.cos(0);
+    const sy = cy + sr * Math.sin(0);
+    const ex = cx + er * Math.cos(Math.PI * 2);
+    const ey = cy + er * Math.sin(Math.PI * 2);
+
+    ctx.fillStyle = '#66bb6a';
+    ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ef5350';
+    ctx.beginPath(); ctx.arc(ex, ey, 6, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Top label
+  ctx.fillStyle = allowed ? '#66bb6a' : '#ef5350';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  if (allowed) {
+    const nodes = Math.round(n);
+    ctx.fillText(nodes + ' wave' + (nodes === 1 ? '' : 's') + ' fit · closed ✓', cx, 12);
+  } else {
+    ctx.fillText('Wave does not close ✗', cx, 12);
+  }
+}
+
+// ====================================================== //
+// ============ PANEL 2 — CALCULATOR ==================== //
+// ====================================================== //
+
+let panel2 = {
+  particle: 'electron',
+  mode: 'v',
+  value: 1e6,
+};
+
+const particleSelect = document.getElementById('particleSelect');
+const modeSelect = document.getElementById('modeSelect');
+const valueInput = document.getElementById('valueInput');
+const unitDisplay = document.getElementById('unitDisplay');
+
+const UNITS = {
+  v: 'm/s',
+  ke: 'eV',
+  volt: 'V',
+  temp: 'K',
+};
+
+function setDefaultValue() {
+  const p = PARTICLES[panel2.particle];
+  let def;
+  if (panel2.mode === 'v') def = p.defaultV;
+  else if (panel2.mode === 'ke') def = p.defaultKE;
+  else if (panel2.mode === 'volt') def = p.defaultVolt || 100;
+  else def = p.defaultT;
+  panel2.value = def;
+  valueInput.value = def;
+}
+
+particleSelect.addEventListener('change', () => {
+  panel2.particle = particleSelect.value;
+  // Hide voltage mode for chargeless particles
+  const p = PARTICLES[panel2.particle];
+  const voltOpt = modeSelect.querySelector('option[value="volt"]');
+  if (p.charge === 0) {
+    if (panel2.mode === 'volt') {
+      modeSelect.value = 'v';
+      panel2.mode = 'v';
+    }
+    voltOpt.disabled = true;
+    voltOpt.textContent = 'Accelerating voltage (V) — needs charge';
+  } else {
+    voltOpt.disabled = false;
+    voltOpt.textContent = 'Accelerating voltage (V)';
+  }
+  setDefaultValue();
+  unitDisplay.textContent = UNITS[panel2.mode];
+  updateCalculator();
+});
+
+modeSelect.addEventListener('change', () => {
+  panel2.mode = modeSelect.value;
+  unitDisplay.textContent = UNITS[panel2.mode];
+  setDefaultValue();
+  updateCalculator();
+});
+
+valueInput.addEventListener('input', () => {
+  panel2.value = parseFloat(valueInput.value);
+  updateCalculator();
+});
+
+function updateCalculator() {
+  const p = PARTICLES[panel2.particle];
+  const m = p.mass, q = p.charge, x = panel2.value;
+  const lambdaOut = document.getElementById('lambdaOut');
+  const lambdaCompareEl = document.getElementById('lambdaCompare');
+  const working = document.getElementById('working');
+
+  if (!isFinite(x) || x <= 0 || isNaN(x)) {
+    lambdaOut.textContent = '—';
+    lambdaCompareEl.textContent = 'Enter a positive value above';
+    working.style.display = 'none';
+    return;
+  }
+
+  let lam = NaN;
+  let steps = [];
+
+  if (panel2.mode === 'v') {
+    lam = H / (m * x);
+    steps = [
+      { label: 'Formula', text: 'λ = h / (mv)' },
+      { label: 'Plug in', text: 'λ = ' + formatSci(H) + ' / (' + formatSci(m) + ' × ' + formatSci(x) + ')' },
+    ];
+  } else if (panel2.mode === 'ke') {
+    const keJ = x * QE;
+    lam = H / Math.sqrt(2 * m * keJ);
+    steps = [
+      { label: 'Formula', text: 'λ = h / √(2m·KE)' },
+      { label: 'KE in J', text: x + ' eV = ' + formatSci(keJ) + ' J' },
+    ];
+  } else if (panel2.mode === 'volt') {
+    if (q === 0) {
+      lambdaOut.textContent = '—';
+      lambdaCompareEl.textContent = 'Neutral particles cannot be accelerated by voltage';
+      working.style.display = 'none';
+      return;
+    }
+    const keJ = q * x;
+    lam = H / Math.sqrt(2 * m * keJ);
+    steps = [
+      { label: 'Formula', text: 'λ = h / √(2mqV)' },
+      { label: 'qV',      text: formatSci(q) + ' × ' + x + ' = ' + formatSci(keJ) + ' J' },
+    ];
+    if (panel2.particle === 'electron') {
+      const shortcut = Math.sqrt(150 / x);
+      steps.push({ label: 'Shortcut', text: 'λ (Å) ≈ √(150/V) = ' + shortcut.toFixed(3) + ' Å' });
+    }
+  } else {
+    lam = H / Math.sqrt(3 * m * KB * x);
+    steps = [
+      { label: 'Formula', text: 'λ = h / √(3m·k·T)' },
+      { label: 'Plug in', text: 'k·T = ' + formatSci(KB) + ' × ' + x + ' = ' + formatSci(KB * x) + ' J' },
+    ];
+  }
+
+  steps.push({ label: 'Answer', text: formatLambda(lam), answer: true });
+
+  lambdaOut.textContent = formatLambda(lam);
+  lambdaCompareEl.textContent = lambdaCompare(lam);
+
+  working.style.display = 'block';
+  working.innerHTML = steps.map(s =>
+    '<div class="working-step' + (s.answer ? ' answer' : '') + '">' +
+      '<span class="step-label">' + s.label + '</span>' +
+      s.text +
+    '</div>'
+  ).join('');
+}
+
+// ====================================================== //
+// ============ ANIMATION LOOP ========================== //
+// ====================================================== //
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function animate(time) {
+  drawOrbit(time);
+  requestAnimationFrame(animate);
+}
+
+// ===== Initialize =====
+function init() {
+  setDefaultValue();
+  updateOrbitStatus();
+  updateCalculator();
+  if (reduceMotion) {
+    drawOrbit(0);
+  } else {
+    requestAnimationFrame(animate);
+  }
+}
+
+// Redraw orbit on resize (handles orientation change too)
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (reduceMotion) drawOrbit(0);
+  }, 150);
+});
+
+init();
+</script>
+</body>
+</html>
